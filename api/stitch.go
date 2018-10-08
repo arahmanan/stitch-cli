@@ -366,13 +366,10 @@ func (sc *basicStitchClient) UploadAsset(groupID, appID, path, hash string, size
 	bodyWriter := multipart.NewWriter(pipeWriter)
 	go func() (err error) {
 		defer func() {
-			if err != nil {
-				// If building the request failed, force the reader side to fail
-				// so that ExecuteRequest returns the error.
-				pipeWriter.CloseWithError(err)
-			} else {
-				pipeWriter.Close()
-			}
+			// If building the request failed, force the reader side to fail
+			// so that ExecuteRequest returns the error. This behaves equivalent to
+			// .Close() if err is nil.
+			pipeWriter.CloseWithError(err)
 			bodyWriter.Close()
 		}()
 		// Create the first part and write the metadata into it
